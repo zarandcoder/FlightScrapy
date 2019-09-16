@@ -58,3 +58,41 @@ def arrival_country_chooser(arrival_country):
     first_item = browser.find_element_by_xpath("//a[@id='aria-option-0']")
     time.sleep(1.5)
     first_item.click()
+
+
+#Choosing depature and return dates
+def dep_date_choose(month,day,year):
+    dep_date_but = browser.find_element_by_xpath("//input[@id='package-departing-hp-package']")
+    dep_date_but.clear()
+    dep_date_but.send_keys(month + '/' + day + '/' + year)
+
+
+def return_date_chooser(month, day, year):
+    return_date_button = browser.find_element_by_xpath("//input[@id='flight-returning-hp-flight']")
+
+    for i in range(11):
+        return_date_button.send_keys(Keys.BACKSPACE)
+    return_date_button.send_keys(month + '/' + day + '/' + year)
+
+
+#Getting the results
+def search():
+    search = browser.find_element_by_xpath("//button[@id='search-button-hp-package'")
+    search.click()
+    time.sleep(15)
+    print("Ready!")
+
+
+#Compile the data
+df = pd.DataFrame()
+def compile_data():
+    global df
+    global dep_times_list
+    global arr_times_list
+    global airlines_list
+    global price_list
+    global duration_list
+    global stops_list
+    global layovers_list
+
+    #depature times
