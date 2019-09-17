@@ -16,8 +16,7 @@ from email.mime.multipart import MIMEMultipart
 
 
 browser = webdriver.Chrome(executable_path='chromedrive/chromedriver')
-#Choose flight tab
-choose_flight_only = "//button[@id='tab-flight-tab-hp']"
+
 #Settings ticket type paths
 return_ticket = "//label[@id='flight-type-roundtrip-label-hp-flight']"
 one_way_ticket = "//label[@id='flight-type-one-way-label-hp-flight']"
@@ -61,8 +60,8 @@ def arrival_country_chooser(arrival_country):
 
 
 #Choosing depature and return dates
-def dep_date_choose(month,day,year):
-    dep_date_but = browser.find_element_by_xpath("//input[@id='package-departing-hp-package']")
+def dep_date_choose(month, day, year):
+    dep_date_but = browser.find_element_by_xpath("//input[@id='flight-departing-hp-flight']")
     dep_date_but.clear()
     dep_date_but.send_keys(month + '/' + day + '/' + year)
 
@@ -77,9 +76,9 @@ def return_date_chooser(month, day, year):
 
 #Getting the results
 def search():
-    search = browser.find_element_by_xpath("//button[@id='search-button-hp-package'")
+    search = browser.find_element_by_xpath("//button[@class='btn-primary btn-action gcw-submit']")
     search.click()
-    time.sleep(15)
+    time.sleep(20)
     print("Ready!")
 
 
@@ -96,3 +95,75 @@ def compile_data():
     global layovers_list
 
     #depature times
+    dep_times = browser.find_elements_by_xpath("//span[@data-test-id='departure-time']")
+    dep_times_list = [value.text for value in dep_times]
+
+    #arrival times
+    arr_times = browser.find_elements_by_xpath("//span[@data-test-id='arrival-time']")
+    arr_times_list = [value.text for value in arr_times]
+
+    #airline name
+    airlines = browser.find_elements_by_xpath("//span[@data-test-id='airline-name']")
+    airlines_list = [value.text for value in airlines]
+
+    #prices
+    prices = browser.find_elements_by_xpath("//span[@data-test-id='listing-price-dollars']")
+    price_list = [value.text for value in prices]
+
+    #durations
+    durations = browser.find_elements_by_xpath("//span[@data-test-id='duration']")
+    duration_list = [value.text for value in durations]
+
+    #stops
+    stops = browser.find_elements_by_xpath("//span[@class='number-stops']")
+    stops_list = [value.text for value in stops]
+
+    #layovers
+    layovers = browser.find_elements_by_xpath("//span[@data-test-id='layover-airport-stops']")
+    layovers_list = [value.text for value in layovers]
+
+
+    now = datetime.datetime.now()
+    current_date = (str(now.year) + '-' + str(now.month) + '-' + str(now.day))
+    current_time = (str(now.hour) + ':' + str(now.minute))
+    current_price = 'price' + '(' + current_date + '---' + current_time + ')'
+
+    for i in range(len(dep_times_list)):
+        try:
+            df.loc[i, 'depature_time'] = dep_times_list[i]
+        except Exception as e:
+            pass
+
+        try:
+            df.loc[i, 'arrival_time'] = arr_times_list[i]
+        except Exception as e:
+            pass
+
+        try:
+            df.loc[i, 'airline'] = airlines_list[i]
+        except Exception as e:
+            pass
+
+        try:
+            df.loc[i, 'duration'] = duration_list[i]
+        except Exception as e:
+            pass
+
+        try:
+            df.loc[i, 'stops'] = stops_list[i]
+        except Exception as e:
+            pass
+
+        try:
+            df.loc[i, 'layovers'] = layovers_list[i]
+        except Exception as e:
+            pass
+
+        try:
+            df.loc[i, str(current_price)] = price_list[i]
+        except Exception as e:
+            pass
+
+    print("Dataframe was created and filled")
+
+    #TODO: Implementing notification with telegram
